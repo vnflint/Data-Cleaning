@@ -1,0 +1,40 @@
+import matplotlib.pyplot as plt
+import seaborn as sn; sn.set()
+import pandas as pd
+pd.set_option("display.max_rows", None, "display.max_columns", None)
+
+
+houses=pd.read_csv("raw_house_data.csv", delimiter=',', quotechar='"')
+
+#adjust columns so missing values are numerical 
+houses=houses.replace(to_replace={"lot_acres":"NaN", "HOA":"None","bathrooms":"None","sqrt_ft":"None","garage":"None", "fireplaces":" "}, value="0")  #replaces missing numeric values in the given columns with a 0
+houses["HOA"]=houses["HOA"].str.replace(",","")     #removes commas from larger values in HOA
+data_types={"lot_acres":float, "HOA":float, "bathrooms":float, "sqrt_ft":float, "garage":float, "fireplaces":float}     #sets up a dictionary of data types to change numeric columns into numeric forms
+houses=houses.astype(data_types)        #applies the data type dictionary
+
+#drop rows with nonsensical missing values
+houses=houses.drop(houses[houses["bathrooms"]==0.0].index)
+houses=houses.drop(houses[houses["sqrt_ft"]==0.0].index)
+houses=houses.drop(houses[houses["lot_acres"]==0.0].index)
+
+
+#make plots for EDA
+plt.figure(figsize=(10,5))
+plt.scatter(houses["zipcode"],houses["taxes"])
+plt.ylabel("Taxes")
+plt.xlabel("Zipcode")
+plt.ylim(0,35000)
+plt.xlim(85600,85770)
+
+plt.figure(figsize=(10,5))
+plt.scatter(houses["zipcode"],houses["sold_price"])
+plt.ylabel("Sale Price")
+plt.xlabel("Zipcode")
+plt.xlim(85600,85770)
+
+plt.figure(figsize=(10,5))
+plt.scatter(houses["zipcode"],houses["HOA"])
+plt.ylabel("HOA Fees")
+plt.xlabel("Zipcode")
+plt.xlim(85600,85770)
+plt.ylim(0,2500)
